@@ -157,8 +157,8 @@ textarea.f-inp{resize:vertical;min-height:34px;}
 
 /* Cover */
 .s-cov-eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:12px;}
-.s-cov-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:98px;line-height:0.9;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:4px;}
-.s-cov-sub{font-family:'Barlow Condensed',sans-serif;font-weight:300;font-size:40px;letter-spacing:0.03em;text-transform:uppercase;margin-bottom:20px;}
+.s-cov-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:90px;line-height:0.92;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:14px;padding-bottom:6px;}
+.s-cov-sub{font-family:'Barlow Condensed',sans-serif;font-weight:300;font-size:38px;letter-spacing:0.03em;text-transform:uppercase;margin-bottom:16px;}
 .s-cov-meta{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:0.1em;}
 .s-exp-banner{padding:14px 18px;border-radius:6px;margin-top:18px;display:flex;align-items:center;gap:16px;}
 .s-exp-photo{width:66px;height:66px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
@@ -581,9 +581,9 @@ function hdrHTML(d,t,epLabel,epColor){
       <div><div class="s-logo-aaspt" style="color:${t.logoTxt}">AASPT</div>
       <div class="s-logo-tag" style="color:${t.logoTag}">Building Leaders in Sports PT</div></div>
     </div>
-    <div>
-      <div class="s-hdr-jc" style="color:${t.hdrJc}">Journal Club · ${d.date}</div>
-      <div class="s-hdr-ep" style="color:${epColor||t.muted}">${epLabel}</div>
+    <div style="text-align:right;flex-shrink:0;min-width:0;max-width:260px;">
+      <div class="s-hdr-jc" style="color:${t.hdrJc};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Journal Club · ${d.date}</div>
+      <div class="s-hdr-ep" style="color:${epColor||t.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${epLabel}</div>
     </div>
   </div>`;
 }
@@ -628,10 +628,10 @@ function renderCover(d,theme){
       </div>
       <div class="s-exp-banner" style="background:${t.expBg};border:1px solid ${t.expBd}">
         ${photoCircle(d.expPhoto,d.expName,66,t.artC[0],'rgba(27,107,181,0.5)')}
-        <div class="s-exp-info">
+        <div class="s-exp-info" style="min-width:0;flex:1;overflow:hidden">
           <div class="s-exp-lbl" style="color:${t.expLbl}">Expert Reviewer — All Three Articles</div>
-          <div class="s-exp-name" style="color:${t.expNm}">${d.expName||'Expert Reviewer'}, ${d.expCreds||'PT, DPT'}</div>
-          <div class="s-exp-creds" style="color:${t.expCr}">${d.expRole||'Role · Affiliation'}</div>
+          <div class="s-exp-name" style="color:${t.expNm};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.expName||'Expert Reviewer'}, ${d.expCreds||'PT, DPT'}</div>
+          <div class="s-exp-creds" style="color:${t.expCr};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.expRole||'Role · Affiliation'}</div>
         </div>
         ${logoImg(d.expLogo,28)}
       </div>
@@ -662,24 +662,24 @@ function renderArticle(d,i,theme){
       </div>
       <div class="s-title" style="color:${t.text}">${a.title||'Article title...'}</div>
       <div class="s-rvstrip" style="background:${t.rvBg};border:1px solid ${t.border}">
-        <div class="s-rvblock">
+        <div class="s-rvblock" style="min-width:0;flex:1;overflow:hidden">
           ${photoCircle(a.rvPhoto,a.rvName,38,t.artC[i])}
-          <div class="s-rvtext">
+          <div class="s-rvtext" style="min-width:0;overflow:hidden">
             <div class="s-rv-role" style="color:${t.rvRole}">Reviewer</div>
-            <div class="s-rv-name" style="color:${t.rvName}">${a.rvName||'Reviewer Name'}</div>
-            <div class="s-rv-creds" style="color:${t.rvCreds}">${a.rvCreds||'PT, DPT'}</div>
+            <div class="s-rv-name" style="color:${t.rvName};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.rvName||'Reviewer Name'}</div>
+            <div class="s-rv-creds" style="color:${t.rvCreds};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.rvCreds||'PT, DPT'}</div>
           </div>
-          ${a.rvLogo?`<img src="${a.rvLogo}" class="s-rv-logo" style="opacity:0.8">`:''}
+          ${a.rvLogo?`<img src="${a.rvLogo}" class="s-rv-logo" style="opacity:0.8;flex-shrink:0">`:''}
         </div>
         <div class="s-rvdiv" style="background:${t.border}"></div>
-        <div class="s-rvblock">
+        <div class="s-rvblock" style="min-width:0;flex:1;overflow:hidden">
           ${photoCircle(d.expPhoto,d.expName,38,t.artC[i],'rgba(27,107,181,0.5)')}
-          <div class="s-rvtext">
+          <div class="s-rvtext" style="min-width:0;overflow:hidden">
             <div class="s-rv-role" style="color:${t.rvRole}">Expert Reviewer</div>
-            <div class="s-rv-name" style="color:${t.artC[i]}">${d.expName||'Expert Name'}</div>
-            <div class="s-rv-creds" style="color:${t.rvCreds}">${d.expCreds}</div>
+            <div class="s-rv-name" style="color:${t.artC[i]};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.expName||'Expert Name'}</div>
+            <div class="s-rv-creds" style="color:${t.rvCreds};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.expCreds}</div>
           </div>
-          ${d.expLogo?`<img src="${d.expLogo}" class="s-rv-logo">`:''}
+          ${d.expLogo?`<img src="${d.expLogo}" class="s-rv-logo" style="flex-shrink:0">`:''}
         </div>
       </div>
       <div class="s-bl-wrap">
@@ -713,7 +713,8 @@ function renderContact(d,theme){
         <div class="s-rc-info">
           <div class="s-rc-tag" style="color:${tagC}">${tag}</div>
           <div class="s-rc-name" style="color:${t.rcNm}">${name||'—'}</div>
-          <div class="s-rc-creds" style="color:${t.rcCr}">${creds||''}${extra?` · ${extra}`:''}</div>
+          <div class="s-rc-creds" style="color:${t.rcCr}">${creds||''}</div>
+          ${extra?`<div style="font-size:9px;color:${t.rcCr};margin-bottom:6px;line-height:1.3">${extra}</div>`:`<div style="margin-bottom:6px"></div>`}
           <div class="s-rc-contacts" style="${rowDir}">
             ${email?`<div class="s-rc-row" style="color:${t.rcRow}">${envIcon(t.rcRow)} ${email}</div>`:''}
             ${ig   ?`<div class="s-rc-row" style="color:${t.rcRow}">${igIcon(t.rcRow)} ${ig}</div>`:''}
