@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<!--
+  AASPT Journal Club — Slide Generator
+  ══════════════════════════════════════
+  GitHub Pages deployment:
+  1. Create a new GitHub repository (e.g. "aaspt-journal-club")
+  2. Upload this file as index.html to the root
+  3. Go to Settings → Pages → Source: Deploy from branch → main / root
+  4. Your generator will be live at https://[username].github.io/[repo-name]
+
+  Export instructions:
+  - Fill in all form fields on the left
+  - Preview updates live on the right
+  - Toggle Light / Dark slide theme using the button in the top bar
+  - Click "Export Slide" to download the current slide as a 1080×1350 PNG
+  - Click "Export All" to download all 5 slides as a ZIP file
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AASPT Journal Club — Slide Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Lora:ital,wght@1,400;1,600&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════
+   RESET + BASE
+   ══════════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:'Barlow',sans-serif;background:#E4E3EB;color:#1A1A2E;overflow:hidden;}
+
+/* ══════════════════════════════════════════════════════
+   TOP NAV BAR
+   ══════════════════════════════════════════════════════ */
+.top-nav{
+  height:52px;background:#005F87;display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);position:relative;z-index:100;
+}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-logo-text{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff;letter-spacing:0.05em;}
+.nav-sep{width:1px;height:24px;background:rgba(255,255,255,0.2);}
+.nav-title{font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:0.08em;text-transform:uppercase;}
+.nav-controls{display:flex;align-items:center;gap:8px;}
+
+/* Theme toggle */
+.theme-toggle{
+  display:flex;align-items:center;gap:0;
+  background:rgba(0,0,0,0.25);border-radius:5px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.theme-btn{
+  padding:5px 12px;font-size:10px;font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;border:none;cursor:pointer;transition:all .18s;
+  font-family:'Barlow',sans-serif;color:rgba(255,255,255,0.5);background:transparent;
+}
+.theme-btn.active{background:#fff;color:#005F87;}
+.theme-btn:first-child{border-right:1px solid rgba(255,255,255,0.1);}
+
+/* Nav export buttons */
+.nav-export-btn{
+  padding:6px 14px;border-radius:4px;font-size:10px;font-weight:600;
+  letter-spacing:0.06em;text-transform:uppercase;border:none;cursor:pointer;
+  font-family:'Barlow',sans-serif;transition:all .15s;
+}
+.btn-export-one{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);}
+.btn-export-one:hover{background:rgba(255,255,255,0.25);}
+.btn-export-all{background:#fff;color:#005F87;}
+.btn-export-all:hover{background:#E8F4FA;}
+.btn-exporting{opacity:0.6;cursor:not-allowed;}
+
+/* ══════════════════════════════════════════════════════
+   APP LAYOUT
+   ══════════════════════════════════════════════════════ */
+.app{display:flex;height:calc(100vh - 52px);}
+
+/* ══════════════════════════════════════════════════════
+   SIDEBAR
+   ══════════════════════════════════════════════════════ */
+.sidebar{
+  width:380px;flex-shrink:0;background:#fff;
+  border-right:1px solid #DDDBE6;display:flex;flex-direction:column;overflow:hidden;
+}
+.sb-head{background:#004E72;padding:12px 18px 10px;flex-shrink:0;}
+.sb-head-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:0.04em;}
+.sb-head-sub{font-size:9px;color:rgba(255,255,255,0.45);margin-top:2px;letter-spacing:0.06em;}
+
+/* Sidebar article tabs */
+.sb-tabs{display:flex;border-bottom:1px solid #ECEAEF;flex-shrink:0;background:#F8F8FB;}
+.sb-tab{
+  flex:1;padding:8px 4px;font-size:9.5px;font-weight:600;text-align:center;
+  cursor:pointer;color:#8A8FA0;border:none;background:transparent;
+  letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid transparent;
+  transition:all .15s;font-family:'Barlow',sans-serif;
+}
+.sb-tab:hover{color:#005F87;}
+.sb-tab.active{color:#005F87;border-bottom-color:#005F87;background:#fff;}
+
+.form-scroll{flex:1;overflow-y:auto;padding:14px 16px 0;}
+
+/* Form elements */
+.f-sec{margin-bottom:16px;}
+.f-sec-lbl{font-size:8.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border-bottom:1px solid #EEEDF2;padding-bottom:5px;margin-bottom:10px;}
+.f-row{margin-bottom:6px;}
+.f-lbl{font-size:9.5px;color:#565A5C;font-weight:600;margin-bottom:2px;display:block;}
+.f-inp{
+  width:100%;border:1px solid #D8D5D0;border-radius:4px;
+  padding:5px 8px;font-size:11px;font-family:'Barlow',sans-serif;
+  color:#1A1A1A;background:#FAFAFA;line-height:1.35;transition:border .15s;
+}
+.f-inp:focus{outline:none;border-color:#005F87;background:#fff;}
+textarea.f-inp{resize:vertical;min-height:36px;}
+.f-sel{
+  width:100%;border:1px solid #D8D5D0;border-radius:4px;
+  padding:5px 8px;font-size:11px;font-family:'Barlow',sans-serif;
+  color:#1A1A1A;background:#FAFAFA;cursor:pointer;
+}
+.f-sel:focus{outline:none;border-color:#005F87;}
+.f-2col{display:flex;gap:6px;}
+.f-2col .f-row{flex:1;margin-bottom:0;}
+
+/* Pearl form rows */
+.p-block{border:1px solid #EEEDF2;border-radius:5px;padding:8px 10px;margin-bottom:6px;background:#FAFAFA;}
+.p-num{font-size:7.5px;font-weight:700;color:#B0AEC0;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px;}
+.p-top{display:flex;gap:5px;margin-bottom:4px;}
+.p-cat-sel{
+  width:95px;flex-shrink:0;border:1px solid #D8D5D0;border-radius:3px;
+  padding:3px 5px;font-size:9px;font-family:'Barlow',sans-serif;
+  color:#1A1A1A;background:#fff;cursor:pointer;
+}
+.p-cat-sel.c-assess   {border-color:#3B82F6;color:#1D4ED8;}
+.p-cat-sel.c-intervene{border-color:#B45309;color:#92400E;}
+.p-cat-sel.c-outcome  {border-color:#059669;color:#065F46;}
+.p-anchor{
+  flex:1;border:1px solid #D8D5D0;border-radius:3px;
+  padding:3px 7px;font-size:10.5px;font-family:'Barlow',sans-serif;
+  font-weight:600;background:#fff;
+}
+.p-anchor:focus{outline:none;border-color:#005F87;}
+.p-body{
+  width:100%;border:1px solid #D8D5D0;border-radius:3px;
+  padding:3px 7px;font-size:10.5px;font-family:'Barlow',sans-serif;
+  background:#fff;resize:vertical;min-height:30px;line-height:1.3;
+}
+.p-body:focus{outline:none;border-color:#005F87;}
+
+/* Export bar */
+.exp-bar{
+  display:flex;gap:5px;padding:9px 14px;
+  border-top:1px solid #ECEAEF;background:#F8F8FB;
+  flex-shrink:0;flex-wrap:wrap;align-items:center;
+}
+.exp-bar-label{font-size:8.5px;color:#8A8FA0;text-transform:uppercase;letter-spacing:0.1em;margin-right:3px;}
+.sb-nav-btn{
+  border:none;border-radius:3px;padding:5px 10px;font-size:9px;
+  font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;
+  letter-spacing:0.05em;background:#E5F0F8;color:#005F87;transition:all .15s;
+}
+.sb-nav-btn:hover{background:#CCDEF0;}
+.sb-nav-btn.active-slide{background:#005F87;color:#fff;}
+
+/* ══════════════════════════════════════════════════════
+   PREVIEW AREA
+   ══════════════════════════════════════════════════════ */
+.preview-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#1A1A2E;min-width:0;}
+.preview-tabs{
+  display:flex;border-bottom:1px solid rgba(255,255,255,0.08);
+  background:#13132A;flex-shrink:0;padding:0 16px;
+}
+.ptab{
+  padding:9px 14px;font-size:9.5px;font-weight:600;cursor:pointer;
+  color:#555;border:none;background:transparent;
+  letter-spacing:0.06em;text-transform:uppercase;
+  border-bottom:2px solid transparent;transition:all .15s;font-family:'Barlow',sans-serif;
+}
+.ptab:hover{color:#888;}
+.ptab.active{color:#fff;border-bottom-color:#fff;}
+.preview-canvas{flex:1;overflow:auto;display:flex;justify-content:center;padding:24px;}
+.slide-wrap{transform-origin:top center;display:inline-block;line-height:0;}
+
+/* Exporting overlay */
+.exporting-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;
+  align-items:center;justify-content:center;flex-direction:column;gap:16px;
+}
+.exporting-overlay.show{display:flex;}
+.exporting-spinner{
+  width:40px;height:40px;border:3px solid rgba(255,255,255,0.2);
+  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;
+}
+.exporting-text{color:#fff;font-size:13px;letter-spacing:0.08em;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ══════════════════════════════════════════════════════
+   HIDDEN EXPORT ZONE  (off-screen, real size)
+   ══════════════════════════════════════════════════════ */
+#export-zone{
+  position:fixed;left:-2200px;top:0;width:1080px;
+  pointer-events:none;z-index:-1;
+}
+
+/* ══════════════════════════════════════════════════════
+   SLIDE BASE  (all themes share this structure)
+   ══════════════════════════════════════════════════════ */
+.slide{width:1080px;height:1350px;position:relative;overflow:hidden;font-family:'Barlow',sans-serif;display:flex;flex-direction:column;}
+
+/* Accent top bar */
+.s-accent{position:absolute;top:0;left:0;right:0;height:5px;z-index:10;}
+/* Texture overlay div */
+.s-texture{position:absolute;inset:0;background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:1;}
+/* Glow div */
+.s-glow{position:absolute;right:-100px;top:150px;width:520px;height:520px;border-radius:50%;pointer-events:none;z-index:1;}
+/* Decorative bg numeral */
+.s-bgnum{position:absolute;right:20px;top:55px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:390px;line-height:1;z-index:2;user-select:none;letter-spacing:-0.05em;pointer-events:none;}
+/* Content */
+.s-body{position:relative;z-index:5;padding:50px 70px 42px;height:100%;display:flex;flex-direction:column;}
+/* Header */
+.s-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+.s-logo-wrap{display:flex;align-items:center;gap:10px;}
+.s-logo-icon{width:40px;height:40px;}
+.s-logo-aaspt{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:0.05em;line-height:1;}
+.s-logo-tag{font-size:7.5px;letter-spacing:0.09em;text-transform:uppercase;font-weight:500;margin-top:3px;}
+.s-hdr-jc{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;line-height:1.8;}
+.s-hdr-ep{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.08em;}
+/* Category label */
+.s-cat{font-family:'Space Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:0.16em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.s-cat-left{display:flex;align-items:center;gap:9px;}
+.s-cat-rule{display:block;width:20px;height:2px;border-radius:2px;flex-shrink:0;}
+.s-study-badge{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;}
+/* Article title */
+.s-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:46px;line-height:1.07;letter-spacing:-0.01em;margin-bottom:18px;position:relative;z-index:3;}
+/* Reviewer strip */
+.s-rvstrip{display:flex;gap:24px;padding:12px 16px;border-radius:5px;margin-bottom:20px;}
+.s-rvblock{display:flex;flex-direction:column;gap:2px;}
+.s-rv-role{font-family:'Space Mono',monospace;font-size:7.5px;text-transform:uppercase;letter-spacing:0.12em;}
+.s-rv-name{font-size:14px;font-weight:600;line-height:1.2;}
+.s-rv-creds{font-size:10.5px;}
+.s-rvdiv{width:1px;align-self:stretch;}
+/* Section label */
+.s-sec-lbl{font-family:'Space Mono',monospace;font-size:7.5px;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:7px;display:flex;align-items:center;gap:9px;}
+.s-sec-lbl::after{content:'';flex:1;height:1px;}
+/* Bottom line */
+.s-bl-wrap{margin-bottom:18px;}
+.s-bl-text{font-size:15.5px;font-weight:500;line-height:1.55;padding-left:15px;border-left:3px solid;font-style:italic;}
+/* Pearls */
+.s-pearls{flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.s-pearl{display:flex;align-items:flex-start;gap:11px;padding:11px 14px;border-radius:5px;}
+.s-badge{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:0.09em;text-transform:uppercase;padding:3px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:2px;border:1px solid;}
+.s-pearl-text{font-size:12.5px;line-height:1.52;}
+.s-pearl-text strong{font-weight:600;}
+/* Footer */
+.s-footer{padding-top:12px;display:flex;flex-direction:column;gap:5px;}
+.s-cite{font-family:'Space Mono',monospace;font-size:7.5px;font-style:italic;line-height:1.6;}
+.s-foot-row{display:flex;justify-content:space-between;align-items:center;}
+.s-tags{font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:0.04em;}
+.s-handle{font-family:'Space Mono',monospace;font-size:7.5px;}
+/* Cover */
+.s-cover-eyebrow{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:14px;}
+.s-cover-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:106px;line-height:0.91;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:5px;}
+.s-cover-sub{font-family:'Barlow Condensed',sans-serif;font-weight:300;font-size:44px;letter-spacing:0.03em;text-transform:uppercase;margin-bottom:24px;}
+.s-cover-meta{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.1em;}
+.s-art-cards{display:flex;flex-direction:column;gap:8px;margin-top:26px;}
+.s-art-card{display:flex;align-items:center;gap:14px;padding:13px 17px;border-radius:5px;border-left:3px solid;}
+.s-card-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;opacity:0.2;min-width:30px;line-height:1;}
+.s-card-title{font-size:12px;font-weight:600;line-height:1.3;margin-bottom:2px;}
+.s-card-rv{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.04em;}
+.s-exp-banner{margin-top:20px;padding:15px 18px;border-radius:5px;}
+.s-eb-lbl{font-family:'Space Mono',monospace;font-size:7.5px;text-transform:uppercase;letter-spacing:0.16em;margin-bottom:5px;}
+.s-eb-name{font-size:15px;font-weight:700;}
+.s-eb-creds{font-size:11px;margin-top:1px;}
+/* Contact */
+.s-contact-head{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:56px;text-transform:uppercase;letter-spacing:-0.01em;line-height:1;margin-bottom:4px;}
+.s-contact-sub{font-size:12px;margin-bottom:22px;}
+.s-rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.s-rc-card{padding:14px 16px;border-radius:5px;border-top:2px solid;}
+.s-rc-tag{font-family:'Space Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:3px;}
+.s-rc-name{font-size:13.5px;font-weight:700;}
+.s-rc-creds{font-size:10px;margin-bottom:8px;}
+.s-rc-contacts{display:flex;flex-direction:column;gap:4px;}
+.s-rc-row{display:flex;align-items:center;gap:6px;font-family:'Space Mono',monospace;font-size:8.5px;}
+/* Citations block on contact slide */
+.s-citations-block{border-radius:5px;padding:14px 16px;margin-bottom:14px;}
+.s-cit-label{font-family:'Space Mono',monospace;font-size:7.5px;text-transform:uppercase;letter-spacing:0.16em;margin-bottom:10px;}
+.s-cit-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:7px;}
+.s-cit-item:last-child{margin-bottom:0;}
+.s-cit-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.s-cit-text{font-family:'Space Mono',monospace;font-size:7.5px;line-height:1.55;font-style:italic;}
+/* Announcement */
+.s-ann-box{border-radius:5px;padding:16px 20px;margin-bottom:16px;}
+.s-ann-tag{font-family:'Space Mono',monospace;font-size:7.5px;text-transform:uppercase;letter-spacing:0.16em;margin-bottom:8px;}
+.s-ann-when{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;}
+.s-ann-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1.1;}
+.s-ann-note{font-family:'Space Mono',monospace;font-size:8.5px;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<!-- ── TOP NAV ── -->
+<nav class="top-nav">
+  <div class="nav-brand">
+    <svg width="32" height="32" viewBox="0 0 44 44" fill="none">
+      <path d="M7 36L22 9L37 36Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M15 36L25 18L37 36Z" fill="#fff" opacity="0.3"/>
+      <circle cx="31" cy="11" r="2.8" fill="#fff"/>
+      <path d="M29.5 14L27 21M29.5 14L33 19.5M27 21L24.5 26.5M27 21L30 26" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <div class="nav-sep"></div>
+    <span class="nav-logo-text">AASPT</span>
+    <div class="nav-sep"></div>
+    <span class="nav-title">Journal Club · Slide Generator</span>
+  </div>
+  <div class="nav-controls">
+    <div class="theme-toggle">
+      <button class="theme-btn" id="btn-light" onclick="setTheme('light')">☀ Light</button>
+      <button class="theme-btn active" id="btn-dark"  onclick="setTheme('dark')">🌙 Dark</button>
+    </div>
+    <button class="nav-export-btn btn-export-one" id="btn-export-one" onclick="exportCurrent()">⬇ Export Slide</button>
+    <button class="nav-export-btn btn-export-all" id="btn-export-all" onclick="exportAll()">⬇ Export All (ZIP)</button>
+  </div>
+</nav>
+
+<!-- ── APP BODY ── -->
+<div class="app">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="sb-head-title">Journal Club Form</div>
+      <div class="sb-head-sub">Fill in once per episode — preview updates live</div>
+    </div>
+    <div class="sb-tabs">
+      <button class="sb-tab active" onclick="switchSbTab('global',this)">Global</button>
+      <button class="sb-tab" style="color:#00B4A0" onclick="switchSbTab('art0',this)">Art. 1</button>
+      <button class="sb-tab" style="color:#E8952C" onclick="switchSbTab('art1',this)">Art. 2</button>
+      <button class="sb-tab" style="color:#4F8EF7" onclick="switchSbTab('art2',this)">Art. 3</button>
+    </div>
+    <div class="form-scroll" id="form-scroll">
+
+      <!-- GLOBAL -->
+      <div class="sb-section" id="sb-global">
+        <div class="f-sec" style="margin-top:12px">
+          <div class="f-sec-lbl" style="color:#565A5C">Session Info</div>
+          <div class="f-2col">
+            <div class="f-row"><label class="f-lbl">Session Date</label><input class="f-inp" id="f-date" placeholder="April 2026"></div>
+            <div class="f-row"><label class="f-lbl">IG Handle</label><input class="f-inp" id="f-handle" placeholder="@AASPT_SIG"></div>
+          </div>
+        </div>
+        <div class="f-sec">
+          <div class="f-sec-lbl" style="color:#005F87">Expert Reviewer</div>
+          <div class="f-row"><label class="f-lbl">Full Name</label><input class="f-inp" id="f-exp-name" placeholder="Erin Angelini"></div>
+          <div class="f-row"><label class="f-lbl">Credentials</label><input class="f-inp" id="f-exp-creds" placeholder="PT, DPT, SCS, CPSS"></div>
+          <div class="f-row"><label class="f-lbl">Role / Affiliation</label><input class="f-inp" id="f-exp-role" placeholder="Head Athletic Trainer · Orlando Pride, NWSL"></div>
+          <div class="f-2col">
+            <div class="f-row"><label class="f-lbl">Email</label><input class="f-inp" id="f-exp-email" placeholder="email@org.com"></div>
+            <div class="f-row"><label class="f-lbl">Instagram</label><input class="f-inp" id="f-exp-ig" placeholder="@handle"></div>
+          </div>
+        </div>
+        <div class="f-sec">
+          <div class="f-sec-lbl" style="color:#565A5C">Next Journal Club</div>
+          <div class="f-row"><label class="f-lbl">Date</label><input class="f-inp" id="f-next-date" placeholder="Wednesday, May 27, 2026"></div>
+          <div class="f-row"><label class="f-lbl">Title</label><input class="f-inp" id="f-next-title" placeholder="Clinical Implications for the American Football Athlete"></div>
+        </div>
+      </div>
+
+      <!-- ARTICLES (injected by JS) -->
+      <div class="sb-section" id="sb-art0" style="display:none"></div>
+      <div class="sb-section" id="sb-art1" style="display:none"></div>
+      <div class="sb-section" id="sb-art2" style="display:none"></div>
+
+    </div>
+    <div class="exp-bar">
+      <span class="exp-bar-label">Preview:</span>
+      <button class="sb-nav-btn active-slide" id="snb-cover"   onclick="showTab('cover')">Cover</button>
+      <button class="sb-nav-btn" id="snb-a0"      onclick="showTab('a0')">Slide 1</button>
+      <button class="sb-nav-btn" id="snb-a1"      onclick="showTab('a1')">Slide 2</button>
+      <button class="sb-nav-btn" id="snb-a2"      onclick="showTab('a2')">Slide 3</button>
+      <button class="sb-nav-btn" id="snb-contact" onclick="showTab('contact')">Contact</button>
+    </div>
+  </aside>
+
+  <!-- ═══ PREVIEW ═══ -->
+  <div class="preview-area">
+    <div class="preview-tabs">
+      <button class="ptab active" id="pt-cover"   onclick="showTab('cover')">Cover</button>
+      <button class="ptab"        id="pt-a0"       onclick="showTab('a0')">Slide 1</button>
+      <button class="ptab"        id="pt-a1"       onclick="showTab('a1')">Slide 2</button>
+      <button class="ptab"        id="pt-a2"       onclick="showTab('a2')">Slide 3</button>
+      <button class="ptab"        id="pt-contact"  onclick="showTab('contact')">Contact</button>
+    </div>
+    <div class="preview-canvas" id="preview-canvas">
+      <div class="slide-wrap" id="slide-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT ZONE (off-screen) -->
+<div id="export-zone"></div>
+
+<!-- EXPORTING OVERLAY -->
+<div class="exporting-overlay" id="export-overlay">
+  <div class="exporting-spinner"></div>
+  <div class="exporting-text" id="export-msg">Rendering slide...</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONSTANTS & THEME SYSTEM
+   ══════════════════════════════════════════════════════ */
+const TABS = ['cover','a0','a1','a2','contact'];
+const ART_NUMS = ['01','02','03'];
+const BADGE_TYPES = ['CLIN COMMENTARY','COHORT STUDY','RCT','SYS REVIEW','CASE REPORT','EXPERT OPINION','SCOPING REVIEW'];
+const PEARL_CATS  = ['ASSESS','INTERVENE','OUTCOME'];
+const PEARL_COUNT = 5;
+
+let currentTab   = 'cover';
+let currentTheme = 'dark';
+
+const T = {
+  dark:{
+    bg:'#07101D', text:'#EDF2F7', muted:'#6B7A8D', muted2:'#38455A',
+    border:'rgba(255,255,255,0.07)', borderStrong:'rgba(255,255,255,0.12)',
+    surfaceLow:'rgba(255,255,255,0.026)', surfaceMed:'rgba(255,255,255,0.038)',
+    textureC:'rgba(255,255,255,0.022)', glowC:'rgba(27,107,181,0.055)',
+    logoText:'#EDF2F7', logoTag:'#38455A',
+    hdrJc:'#38455A', hdrEp:'color-passed-per-slide',
+    artC:  ['#00B4A0','#E8952C','#4F8EF7'],
+    artCL: ['rgba(0,180,160,0.13)','rgba(232,149,44,0.12)','rgba(79,142,247,0.12)'],
+    artCT: ['#5EEAD4','#FBD38D','#93C5FD'],
+    artCB: ['rgba(0,180,160,0.32)','rgba(232,149,44,0.3)','rgba(79,142,247,0.3)'],
+    assess:  {bg:'rgba(59,130,246,0.12)',  text:'#93C5FD', border:'rgba(59,130,246,0.28)'},
+    outcome: {bg:'rgba(16,185,129,0.12)',  text:'#6EE7B7', border:'rgba(16,185,129,0.28)'},
+    studyBadge:'rgba(255,255,255,0.12)',  studyBadgeT:'rgba(255,255,255,0.35)',
+    coverTitle:'#EDF2F7', coverSub:'#38455A', coverMeta:'#38455A',
+    coverCardBg:'rgba(255,255,255,0.032)', coverCardBorder:'rgba(255,255,255,0.065)',
+    coverCardTitle:'#EDF2F7', coverCardRv:'#4A5568',
+    expBg:'rgba(27,107,181,0.09)', expBorder:'rgba(27,107,181,0.2)', expLabel:'#90CDF4', expName:'#EDF2F7', expCreds:'#6B7A8D',
+    rvStripBg:'rgba(255,255,255,0.035)', rvRole:'#38455A', rvName:'#EDF2F7', rvCreds:'#6B7A8D',
+    secLbl:'#38455A', secLine:'rgba(255,255,255,0.07)',
+    blText:'rgba(237,242,247,0.88)', blFont:'italic 500 15.5px/1.55 Barlow, sans-serif',
+    pearlText:'#A8B4C4', pearlStrong:'#EDF2F7',
+    footerLine:'rgba(255,255,255,0.07)', cite:'#38455A', tags:'#2E3A4A', handle:'#38455A',
+    bgNum:'rgba(255,255,255,0.018)',
+    contactHead:'#EDF2F7', contactSub:'#4A5568',
+    rcCardBg:'rgba(255,255,255,0.032)', rcCardBorder:'rgba(255,255,255,0.065)', rcName:'#EDF2F7', rcCreds:'#6B7A8D', rcRow:'#6B7A8D',
+    citBlockBg:'rgba(255,255,255,0.026)', citBorder:'rgba(255,255,255,0.07)', citLabel:'#38455A', citText:'#4A5568',
+    annBg:'rgba(27,107,181,0.08)', annBorder:'rgba(27,107,181,0.18)', annLabel:'#90CDF4', annWhen:'#4A5568', annTitle:'#EDF2F7', annNote:'#90CDF4',
+  },
+  light:{
+    bg:'#FFFFFF', text:'#0D1829', muted:'#565A5C', muted2:'#8A8FA0',
+    border:'rgba(0,0,0,0.08)', borderStrong:'rgba(0,0,0,0.14)',
+    surfaceLow:'rgba(0,0,0,0.024)', surfaceMed:'rgba(0,95,135,0.05)',
+    textureC:'rgba(0,0,0,0.018)', glowC:'rgba(0,95,135,0.04)',
+    logoText:'#0D1829', logoTag:'#8A8FA0',
+    hdrJc:'#8A8FA0',
+    artC:  ['#005F87','#007A7A','#2D6DA8'],
+    artCL: ['rgba(0,95,135,0.08)','rgba(0,122,122,0.08)','rgba(45,109,168,0.08)'],
+    artCT: ['#003F5C','#004F4F','#1A4F7A'],
+    artCB: ['rgba(0,95,135,0.28)','rgba(0,122,122,0.28)','rgba(45,109,168,0.28)'],
+    assess:  {bg:'rgba(0,95,135,0.08)',   text:'#003F5C', border:'rgba(0,95,135,0.28)'},
+    outcome: {bg:'rgba(0,128,90,0.08)',   text:'#004D35', border:'rgba(0,128,90,0.28)'},
+    studyBadge:'rgba(0,0,0,0.06)', studyBadgeT:'rgba(0,0,0,0.4)',
+    coverTitle:'#0D1829', coverSub:'#8A8FA0', coverMeta:'#8A8FA0',
+    coverCardBg:'rgba(0,0,0,0.024)', coverCardBorder:'rgba(0,0,0,0.08)',
+    coverCardTitle:'#0D1829', coverCardRv:'#8A8FA0',
+    expBg:'rgba(0,95,135,0.06)', expBorder:'rgba(0,95,135,0.18)', expLabel:'#005F87', expName:'#0D1829', expCreds:'#565A5C',
+    rvStripBg:'rgba(0,0,0,0.028)', rvRole:'#8A8FA0', rvName:'#0D1829', rvCreds:'#565A5C',
+    secLbl:'#8A8FA0', secLine:'rgba(0,0,0,0.08)',
+    blText:'#0D1829', blFont:'italic 500 15.5px/1.55 Lora, Georgia, serif',
+    pearlText:'#565A5C', pearlStrong:'#0D1829',
+    footerLine:'rgba(0,0,0,0.08)', cite:'#8A8FA0', tags:'#AEAFC0', handle:'#8A8FA0',
+    bgNum:'rgba(0,0,0,0.025)',
+    contactHead:'#0D1829', contactSub:'#8A8FA0',
+    rcCardBg:'rgba(0,0,0,0.024)', rcCardBorder:'rgba(0,0,0,0.08)', rcName:'#0D1829', rcCreds:'#565A5C', rcRow:'#565A5C',
+    citBlockBg:'rgba(0,95,135,0.04)', citBorder:'rgba(0,95,135,0.14)', citLabel:'#005F87', citText:'#565A5C',
+    annBg:'rgba(0,95,135,0.05)', annBorder:'rgba(0,95,135,0.18)', annLabel:'#005F87', annWhen:'#8A8FA0', annTitle:'#0D1829', annNote:'#005F87',
+  }
+};
+
+/* ══════════════════════════════════════════════════════
+   DEFAULTS (April 2026)
+   ══════════════════════════════════════════════════════ */
+const DEFAULTS = {
+  date:'April 2026', handle:'@AASPT_SIG',
+  nextDate:'Wednesday, May 27, 2026',
+  nextTitle:'Clinical Implications for the American Football Athlete',
+  expName:'Erin Angelini', expCreds:'PT, DPT, SCS, CPSS',
+  expRole:'Head Athletic Trainer · Orlando Pride, NWSL',
+  expEmail:'eangelini@orlpride.com', expIg:'@angelinierin',
+  articles:[
+    {
+      cat:'Return to Sport · Professional Soccer',
+      title:'Return to Running & Grass-Based Rehabilitation in Professional Soccer',
+      badge:'CLIN COMMENTARY',
+      rvName:'Bailey Lanser', rvCreds:'PT, DPT, SCS',
+      rvEmail:'bll@athletics.wisc.edu', rvIg:'@baileylanserdpt',
+      cite:'Mitchell A, Greig M, Palmer M. JOSPT Open. 2025;3(3):231-245. doi:10.2519/josptopen.2025.0115',
+      bl:'Objective RTR criteria work best when athletes are exposed early, tested frequently, and managed collaboratively across the sports medicine team.',
+      tags:'#SoccerSportsMed · #ReturnToSport · #AASPT',
+      pearls:[
+        {cat:'INTERVENE',anchor:'Introduce RTR tests early',body:'to build familiarity and reduce test-related fear before return decisions carry meaningful stakes'},
+        {cat:'INTERVENE',anchor:'Avoid single testing days',body:'— dose assessments progressively throughout rehab to minimize external pressure on the athlete'},
+        {cat:'ASSESS',anchor:'Use ForceFrame and Nordic as biofeedback',body:'— athletes build confidence with equipment before results carry weight'},
+        {cat:'INTERVENE',anchor:'GPS targets volume-spike avoidance',body:'not a specific ACWR number — collaborate with S&C to set weekly thresholds adjusted for lift load'},
+        {cat:'ASSESS',anchor:'Without GPS use position-specific norms',body:'as a valid alternative for monitoring load across the return-to-run continuum'},
+      ]
+    },
+    {
+      cat:'Injury Screening · Hip & Groin',
+      title:'Preseason Hip/Groin Strength & HAGOS Scores Associated With Injury in Pro Soccer',
+      badge:'COHORT STUDY',
+      rvName:'Jordan Olson', rvCreds:'PT, DPT',
+      rvEmail:'Jordan.Olson@uj.edu', rvIg:'@jordanolson34',
+      cite:"Bourne MN, Williams M, Jackson J, et al. J Orthop Sports Phys Ther. 2020;50(5):234-242. doi:10.2519/jospt.2020.9022",
+      bl:"Preseason screening data becomes your team's own normative reference — and no single metric drives participation decisions for the groin-involved athlete.",
+      tags:'#HipGroin · #InjuryPrevention · #AASPT',
+      pearls:[
+        {cat:'ASSESS',anchor:'Preseason battery becomes team normative data',body:'ForceFrame, Nordics, CMJ, belt squats — not external population benchmarks'},
+        {cat:'INTERVENE',anchor:'Embed targeted rehab block in regular lifting',body:'for athletes with significant asymmetry or strength deficits at preseason screen'},
+        {cat:'ASSESS',anchor:'Monitor adductor squeeze at match day −2 and −3',body:'— thresholds are player- and limb-dependent, not fixed population-based cutoffs'},
+        {cat:'ASSESS',anchor:'Full restriction requires confluence of signals',body:'groin squeeze, pain, fatigue, CMJ trends, and symptom persistence — never one number alone'},
+        {cat:'INTERVENE',anchor:'Modify before you remove',body:'— reduce running volume or eliminate provocative loads (long balls, hard shooting) before pulling from participation'},
+      ]
+    },
+    {
+      cat:'ACL Prevention · Neuromuscular Training',
+      title:"Don't Peak Too Early: ACL Prevention Mechanism of the FIFA 11+ Program",
+      badge:'RCT',
+      rvName:'Mackenzie Yob', rvCreds:'PT, DPT, SCS, CSCS',
+      rvEmail:'mackenzieyob@gmail.com', rvIg:'@mackenzie_yob',
+      cite:'Sigurðsson HB, Briem K, Grävare Silbernagel K, Snyder-Mackler L. Int J Sports Phys Ther. 2022;17(5):823-831. doi:10.26603/001c.36524',
+      bl:'ACL prevention programming succeeds when microdosing is matched to practice demands and buy-in is built through demonstrated performance — not compliance.',
+      tags:'#ACLPrevention · #FIFA11Plus · #AASPT',
+      pearls:[
+        {cat:'INTERVENE',anchor:'S&C staff use microdosing',body:"to target key muscle groups during practice prep, calibrated to the day's on-field training focus"},
+        {cat:'INTERVENE',anchor:'Primary constraint on all prevention work',body:'— it must not cause fatigue or compromise the quality of on-field practice performance'},
+        {cat:'ASSESS',anchor:'Screen for athletes without lifting background',body:'— international players may have limited prior exposure to loaded lifting programs'},
+        {cat:'INTERVENE',anchor:'Build buy-in through performance framing',body:'— demonstrate that lifting is protective and improves on-field output, not just medicine to comply with'},
+        {cat:'OUTCOME',anchor:'Cultural context shapes programming',body:'— acknowledge varying backgrounds and meet athletes where they are to drive durable adherence'},
+      ]
+    }
+  ]
+};
+
+/* ══════════════════════════════════════════════════════
+   BUILD ARTICLE FORMS
+   ══════════════════════════════════════════════════════ */
+function buildArticleForms(){
+  const artColors = ['#00B4A0','#E8952C','#4F8EF7'];
+  [0,1,2].forEach(i=>{
+    const c = artColors[i];
+    let html = `<div style="margin-top:12px">
+      <div class="f-sec">
+        <div class="f-sec-lbl" style="color:${c}">Article ${i+1} — Topic</div>
+        <div class="f-row"><label class="f-lbl">Category Label</label>
+          <input class="f-inp" id="f-a${i}-cat" placeholder="Return to Sport · Professional Soccer"></div>
+        <div class="f-row"><label class="f-lbl">Article Title</label>
+          <textarea class="f-inp" id="f-a${i}-title" rows="2" placeholder="Full article title..."></textarea></div>
+        <div class="f-row"><label class="f-lbl">Study Type Badge</label>
+          <select class="f-sel" id="f-a${i}-badge">
+            ${BADGE_TYPES.map(b=>`<option value="${b}">${b}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-sec-lbl" style="color:${c}">Reviewer</div>
+        <div class="f-2col">
+          <div class="f-row"><label class="f-lbl">Name</label><input class="f-inp" id="f-a${i}-rv-name" placeholder="Name"></div>
+          <div class="f-row"><label class="f-lbl">Credentials</label><input class="f-inp" id="f-a${i}-rv-creds" placeholder="PT, DPT, SCS"></div>
+        </div>
+        <div class="f-2col">
+          <div class="f-row"><label class="f-lbl">Email</label><input class="f-inp" id="f-a${i}-rv-email" placeholder="email@org.com"></div>
+          <div class="f-row"><label class="f-lbl">Instagram</label><input class="f-inp" id="f-a${i}-rv-ig" placeholder="@handle"></div>
+        </div>
+      </div>
+      <div class="f-sec">
+        <div class="f-sec-lbl" style="color:${c}">Content</div>
+        <div class="f-row"><label class="f-lbl">Full Citation</label>
+          <textarea class="f-inp" id="f-a${i}-cite" rows="2" placeholder="Author et al. Journal. Year;vol(iss):pp. doi:..."></textarea></div>
+        <div class="f-row"><label class="f-lbl">Bottom Line</label>
+          <textarea class="f-inp" id="f-a${i}-bl" rows="2" placeholder="One-sentence clinical anchor..."></textarea></div>
+        <div class="f-row"><label class="f-lbl">Hashtags</label>
+          <input class="f-inp" id="f-a${i}-tags" placeholder="#Topic · #AASPT"></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-sec-lbl" style="color:${c}">Clinical Pearls</div>`;
+    for(let j=0;j<PEARL_COUNT;j++){
+      html+=`<div class="p-block">
+        <div class="p-num">Pearl ${j+1}</div>
+        <div class="p-top">
+          <select class="p-cat-sel" id="f-a${i}-p${j}-cat" onchange="colorSel(this)">
+            ${PEARL_CATS.map(c=>`<option value="${c}">${c}</option>`).join('')}
+          </select>
+          <input class="p-anchor" id="f-a${i}-p${j}-anchor" placeholder="Bold anchor (3–5 words)">
+        </div>
+        <textarea class="p-body" id="f-a${i}-p${j}-body" rows="2" placeholder="Pearl body text..."></textarea>
+      </div>`;
+    }
+    html+=`</div></div>`;
+    document.getElementById(`sb-art${i}`).innerHTML=html;
+  });
+}
+function colorSel(sel){
+  sel.className='p-cat-sel';
+  if(sel.value==='ASSESS')    sel.classList.add('c-assess');
+  if(sel.value==='INTERVENE') sel.classList.add('c-intervene');
+  if(sel.value==='OUTCOME')   sel.classList.add('c-outcome');
+}
+
+/* ══════════════════════════════════════════════════════
+   POPULATE / READ FORM
+   ══════════════════════════════════════════════════════ */
+function sv(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+
+function populateDefaults(){
+  sv('f-date',DEFAULTS.date); sv('f-handle',DEFAULTS.handle);
+  sv('f-next-date',DEFAULTS.nextDate); sv('f-next-title',DEFAULTS.nextTitle);
+  sv('f-exp-name',DEFAULTS.expName); sv('f-exp-creds',DEFAULTS.expCreds);
+  sv('f-exp-role',DEFAULTS.expRole); sv('f-exp-email',DEFAULTS.expEmail);
+  sv('f-exp-ig',DEFAULTS.expIg);
+  DEFAULTS.articles.forEach((a,i)=>{
+    sv(`f-a${i}-cat`,a.cat); sv(`f-a${i}-title`,a.title); sv(`f-a${i}-badge`,a.badge);
+    sv(`f-a${i}-rv-name`,a.rvName); sv(`f-a${i}-rv-creds`,a.rvCreds);
+    sv(`f-a${i}-rv-email`,a.rvEmail); sv(`f-a${i}-rv-ig`,a.rvIg);
+    sv(`f-a${i}-cite`,a.cite); sv(`f-a${i}-bl`,a.bl); sv(`f-a${i}-tags`,a.tags);
+    a.pearls.forEach((p,j)=>{
+      sv(`f-a${i}-p${j}-cat`,p.cat);
+      sv(`f-a${i}-p${j}-anchor`,p.anchor);
+      sv(`f-a${i}-p${j}-body`,p.body);
+      const sel=document.getElementById(`f-a${i}-p${j}-cat`);
+      if(sel) colorSel(sel);
+    });
+  });
+}
+
+function getData(){
+  return{
+    date:gv('f-date')||'Journal Club',
+    handle:gv('f-handle')||'@AASPT_SIG',
+    nextDate:gv('f-next-date'), nextTitle:gv('f-next-title'),
+    expName:gv('f-exp-name'), expCreds:gv('f-exp-creds'),
+    expRole:gv('f-exp-role'), expEmail:gv('f-exp-email'), expIg:gv('f-exp-ig'),
+    articles:[0,1,2].map(i=>({
+      cat:gv(`f-a${i}-cat`), title:gv(`f-a${i}-title`), badge:gv(`f-a${i}-badge`),
+      rvName:gv(`f-a${i}-rv-name`), rvCreds:gv(`f-a${i}-rv-creds`),
+      rvEmail:gv(`f-a${i}-rv-email`), rvIg:gv(`f-a${i}-rv-ig`),
+      cite:gv(`f-a${i}-cite`), bl:gv(`f-a${i}-bl`), tags:gv(`f-a${i}-tags`),
+      pearls:[0,1,2,3,4].map(j=>({
+        cat:gv(`f-a${i}-p${j}-cat`)||'ASSESS',
+        anchor:gv(`f-a${i}-p${j}-anchor`),
+        body:gv(`f-a${i}-p${j}-body`),
+      })).filter(p=>p.anchor||p.body)
+    }))
+  };
+}
+
+/* ══════════════════════════════════════════════════════
+   SVG HELPERS
+   ══════════════════════════════════════════════════════ */
+function logoSVG(t){
+  return `<svg class="s-logo-icon" viewBox="0 0 44 44" fill="none">
+    <path d="M7 36L22 9L37 36Z" fill="none" stroke="#1B6BB5" stroke-width="2.4" stroke-linejoin="round"/>
+    <path d="M15 36L25 18L37 36Z" fill="#1B6BB5" opacity="${t.bg==='#FFFFFF'?'0.4':'0.25'}"/>
+    <circle cx="31" cy="11" r="2.8" fill="#1B6BB5"/>
+    <path d="M29.5 14L27 21M29.5 14L33 19.5M27 21L24.5 26.5M27 21L30 26" stroke="#1B6BB5" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>`;
+}
+function envelopeIcon(c){return `<svg width="12" height="12" viewBox="0 0 13 13" fill="none"><rect x=".5" y="2.5" width="12" height="8" rx="1" stroke="${c}" stroke-width="1.1"/><path d="M.5 3.5l6 4 6-4" stroke="${c}" stroke-width="1.1"/></svg>`;}
+function igIcon(c){return `<svg width="12" height="12" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="1.5" width="10" height="10" rx="2.5" stroke="${c}" stroke-width="1.1"/><circle cx="6.5" cy="6.5" r="2.2" stroke="${c}" stroke-width="1.1"/><circle cx="9.5" cy="3.5" r=".8" fill="${c}"/></svg>`;}
+
+/* ══════════════════════════════════════════════════════
+   RENDER HELPERS
+   ══════════════════════════════════════════════════════ */
+function headerHTML(d,t,epLabel,epColor){
+  return `<div class="s-header">
+    <div class="s-logo-wrap">${logoSVG(t)}
+      <div>
+        <div class="s-logo-aaspt" style="color:${t.logoText}">AASPT</div>
+        <div class="s-logo-tag" style="color:${t.logoTag}">Building Leaders in Sports PT</div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div class="s-hdr-jc" style="color:${t.hdrJc}">Journal Club · ${d.date}</div>
+      <div class="s-hdr-ep" style="color:${epColor||t.muted}">${epLabel}</div>
+    </div>
+  </div>`;
+}
+
+function badgeHTML(cat,i,t){
+  if(cat==='ASSESS')
+    return `<span class="s-badge" style="background:${t.assess.bg};color:${t.assess.text};border-color:${t.assess.border}">Assess</span>`;
+  if(cat==='OUTCOME')
+    return `<span class="s-badge" style="background:${t.outcome.bg};color:${t.outcome.text};border-color:${t.outcome.border}">Outcome</span>`;
+  return `<span class="s-badge" style="background:${t.artCL[i]};color:${t.artCT[i]};border-color:${t.artCB[i]}">Intervene</span>`;
+}
+
+function pearlsHTML(pearls,i,t){
+  if(!pearls.length) return `<div style="color:${t.muted};font-size:12px;font-style:italic;padding:8px 0">Enter pearls in the sidebar...</div>`;
+  return pearls.map(p=>`
+    <div class="s-pearl" style="background:${t.surfaceLow};border:1px solid ${t.border}">
+      ${badgeHTML(p.cat,i,t)}
+      <div class="s-pearl-text" style="color:${t.pearlText}"><strong style="color:${t.pearlStrong}">${p.anchor}</strong>${p.body?' '+p.body:''}</div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   SLIDE RENDERERS
+   ══════════════════════════════════════════════════════ */
+
+/* ── COVER ── */
+function renderCover(d,theme){
+  const t=T[theme];
+  const artCards=d.articles.map((a,i)=>`
+    <div class="s-art-card" style="background:${t.coverCardBg};border:1px solid ${t.coverCardBorder};border-left-color:${t.artC[i]}">
+      <div class="s-card-num" style="color:${t.text}">${ART_NUMS[i]}</div>
+      <div>
+        <div class="s-card-title" style="color:${t.coverCardTitle}">${a.title||'Article title...'}</div>
+        <div class="s-card-rv" style="color:${t.coverCardRv}">Reviewed by ${a.rvName||'Reviewer'}, ${a.rvCreds||'PT, DPT'}</div>
+      </div>
+    </div>`).join('');
+
+  return `<div class="slide" style="background:${t.bg}">
+    <div class="s-texture" style="color:${t.textureC}"></div>
+    <div class="s-glow" style="background:radial-gradient(circle,${t.glowC} 0%,transparent 70%)"></div>
+    <div class="s-accent" style="background:linear-gradient(90deg,${t.artC[0]} 0%,${t.artC[1]} 50%,${t.artC[2]} 100%)"></div>
+    <div class="s-body" style="justify-content:space-between">
+      ${headerHTML(d,t,'Soccer Sports Medicine',t.muted)}
+      <div>
+        <div class="s-cover-eyebrow" style="color:${t.coverMeta}">Soccer Sports Medicine</div>
+        <div class="s-cover-title" style="color:${t.coverTitle}">Journal<br>Club</div>
+        <div class="s-cover-sub" style="color:${t.coverSub}">${d.date}</div>
+        <div class="s-cover-meta" style="color:${t.coverMeta}">3 Articles &nbsp;·&nbsp; Expert Clinical Review</div>
+      </div>
+      <div class="s-art-cards">${artCards}</div>
+      <div class="s-exp-banner" style="background:${t.expBg};border:1px solid ${t.expBorder}">
+        <div class="s-eb-lbl" style="color:${t.expLabel}">Expert Reviewer — All Three Articles</div>
+        <div class="s-eb-name" style="color:${t.expName}">${d.expName||'Expert Reviewer'}, ${d.expCreds||'PT, DPT'}</div>
+        <div class="s-eb-creds" style="color:${t.expCreds}">${d.expRole||'Role · Affiliation'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── ARTICLE SLIDE ── */
+function renderArticle(d,i,theme){
+  const t=T[theme];
+  const a=d.articles[i];
+  const num=ART_NUMS[i];
+  const numRgb=[
+    '0,180,160','232,149,44','79,142,247'
+  ][i];
+
+  return `<div class="slide" style="background:${t.bg}">
+    <div class="s-texture" style="color:${t.textureC}"></div>
+    <div class="s-glow" style="background:radial-gradient(circle,${t.glowC} 0%,transparent 70%)"></div>
+    <div class="s-accent" style="background:${t.artC[i]}"></div>
+    <div class="s-bgnum" style="color:rgba(${numRgb},0.038)">${num}</div>
+    <div class="s-body">
+      ${headerHTML(d,t,`Article ${num} of 03`,t.artC[i])}
+
+      <div class="s-cat">
+        <div class="s-cat-left">
+          <span class="s-cat-rule" style="background:${t.artC[i]}"></span>
+          <span style="color:${t.artC[i]}">${a.cat||'Category · Topic'}</span>
+        </div>
+        <span class="s-study-badge" style="background:${t.studyBadge};color:${t.studyBadgeT}">${a.badge||'STUDY TYPE'}</span>
+      </div>
+
+      <div class="s-title" style="color:${t.text}">${a.title||'Article title...'}</div>
+
+      <div class="s-rvstrip" style="background:${t.rvStripBg};border:1px solid ${t.border}">
+        <div class="s-rvblock">
+          <div class="s-rv-role" style="color:${t.rvRole}">Reviewer</div>
+          <div class="s-rv-name" style="color:${t.rvName}">${a.rvName||'Reviewer Name'}</div>
+          <div class="s-rv-creds" style="color:${t.rvCreds}">${a.rvCreds||'PT, DPT'}</div>
+        </div>
+        <div class="s-rvdiv" style="background:${t.border}"></div>
+        <div class="s-rvblock">
+          <div class="s-rv-role" style="color:${t.rvRole}">Expert Reviewer</div>
+          <div class="s-rv-name" style="color:${t.artC[i]}">${d.expName||'Expert Name'}</div>
+          <div class="s-rv-creds" style="color:${t.rvCreds}">${d.expCreds} · ${d.expRole}</div>
+        </div>
+      </div>
+
+      <div class="s-bl-wrap">
+        <div class="s-sec-lbl" style="color:${t.secLbl}">Bottom Line<span style="background:${t.secLine}"></span></div>
+        <div class="s-bl-text" style="color:${t.blText};border-left-color:${t.artC[i]};font:${t.blFont}">${a.bl||'Bottom line for this article...'}</div>
+      </div>
+
+      <div class="s-pearls">
+        <div class="s-sec-lbl" style="color:${t.secLbl}">Clinical Pearls</div>
+        ${pearlsHTML(a.pearls,i,t)}
+      </div>
+
+      <div class="s-footer" style="border-top:1px solid ${t.footerLine}">
+        <div class="s-cite" style="color:${t.cite}">${a.cite||'Citation...'}</div>
+        <div class="s-foot-row">
+          <div class="s-tags" style="color:${t.tags}">${a.tags||'#Hashtags · #AASPT'}</div>
+          <div class="s-handle" style="color:${t.handle}">${d.handle}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── CONTACT + CITATIONS ── */
+function renderContact(d,theme){
+  const t=T[theme];
+  const artC=t.artC; const artCT=t.artCT;
+  const artLabels=['Article 01','Article 02','Article 03'];
+
+  // Expert card
+  function rcCard(topColor,tagColor,tag,name,creds,email,ig,wide){
+    const colSpan=wide?'grid-column:1/-1;':'' ;
+    const rowDir=wide?'flex-direction:row;flex-wrap:wrap;gap:14px;':'';
+    return `<div class="s-rc-card" style="${colSpan}background:${t.rcCardBg};border:1px solid ${t.rcCardBorder};border-top-color:${topColor}">
+      <div class="s-rc-tag" style="color:${tagColor}">${tag}</div>
+      <div class="s-rc-name" style="color:${t.rcName}">${name||'—'}</div>
+      <div class="s-rc-creds" style="color:${t.rcCreds}">${creds||''}</div>
+      <div class="s-rc-contacts" style="${rowDir}">
+        ${email?`<div class="s-rc-row" style="color:${t.rcRow}">${envelopeIcon(t.rcRow)} ${email}</div>`:''}
+        ${ig   ?`<div class="s-rc-row" style="color:${t.rcRow}">${igIcon(t.rcRow)} ${ig}</div>`:''}
+      </div>
+    </div>`;
+  }
+
+  // Citations
+  const citations = d.articles.map((a,i)=>`
+    <div class="s-cit-item">
+      <div class="s-cit-dot" style="background:${artC[i]}"></div>
+      <div class="s-cit-text" style="color:${t.citText}">${a.cite||`Article ${i+1} citation...`}</div>
+    </div>`).join('');
+
+  return `<div class="slide" style="background:${t.bg}">
+    <div class="s-texture" style="color:${t.textureC}"></div>
+    <div class="s-accent" style="background:linear-gradient(90deg,${artC[0]} 0%,${artC[1]} 50%,${artC[2]} 100%)"></div>
+    <div class="s-body">
+      ${headerHTML(d,t,'Reviewers &amp; Citations',t.muted)}
+
+      <div class="s-contact-head" style="color:${t.contactHead}">Meet the<br>Reviewers</div>
+      <div class="s-contact-sub" style="color:${t.contactSub}">${d.date} · Soccer Sports Medicine Journal Club</div>
+
+      <div class="s-rc-grid">
+        ${rcCard('#1B6BB5',t.expLabel,'Expert Reviewer · All Articles',d.expName,`${d.expCreds} · ${d.expRole}`,d.expEmail,d.expIg,true)}
+        ${rcCard(artC[0],artCT[0],artLabels[0],d.articles[0].rvName,d.articles[0].rvCreds,d.articles[0].rvEmail,d.articles[0].rvIg,false)}
+        ${rcCard(artC[1],artCT[1],artLabels[1],d.articles[1].rvName,d.articles[1].rvCreds,d.articles[1].rvEmail,d.articles[1].rvIg,false)}
+        ${rcCard(artC[2],artCT[2],artLabels[2],d.articles[2].rvName,d.articles[2].rvCreds,d.articles[2].rvEmail,d.articles[2].rvIg,false)}
+      </div>
+
+      <div class="s-citations-block" style="background:${t.citBlockBg};border:1px solid ${t.citBorder}">
+        <div class="s-cit-label" style="color:${t.citLabel}">References</div>
+        ${citations}
+      </div>
+
+      <div class="s-ann-box" style="background:${t.annBg};border:1px solid ${t.annBorder}">
+        <div class="s-ann-tag" style="color:${t.annLabel}">📅 &nbsp;Up Next</div>
+        <div class="s-ann-when" style="color:${t.annWhen}">${d.nextDate||'Date TBD'}</div>
+        <div class="s-ann-title" style="color:${t.annTitle}">${d.nextTitle||'Next Journal Club Title'}</div>
+        <div class="s-ann-note" style="color:${t.annNote}">Sign-up email coming soon — stay tuned!</div>
+      </div>
+
+      <div class="s-footer" style="border-top:1px solid ${t.footerLine}">
+        <div class="s-foot-row">
+          <div class="s-tags" style="color:${t.tags}">#SoccerSportsMed · #AASPT · #SportsPhysicalTherapy</div>
+          <div class="s-handle" style="color:${t.handle}">${d.handle}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER DISPATCH
+   ══════════════════════════════════════════════════════ */
+function renderSlide(tab,theme){
+  const d=getData();
+  const th=theme||currentTheme;
+  if(tab==='cover')   return renderCover(d,th);
+  if(tab==='a0')      return renderArticle(d,0,th);
+  if(tab==='a1')      return renderArticle(d,1,th);
+  if(tab==='a2')      return renderArticle(d,2,th);
+  if(tab==='contact') return renderContact(d,th);
+  return '';
+}
+
+/* ══════════════════════════════════════════════════════
+   PREVIEW LOGIC
+   ══════════════════════════════════════════════════════ */
+function updatePreview(){
+  document.getElementById('slide-wrap').innerHTML=renderSlide(currentTab);
+  scaleSlide();
+}
+function scaleSlide(){
+  const canvas=document.getElementById('preview-canvas');
+  const wrap=document.getElementById('slide-wrap');
+  const avail=canvas.clientWidth-48;
+  const scale=Math.min(1,avail/1080);
+  wrap.style.transform=`scale(${scale})`;
+  wrap.style.transformOrigin='top center';
+  wrap.style.marginBottom=(1350*scale-1350)+'px';
+}
+function showTab(tab){
+  currentTab=tab;
+  TABS.forEach(t=>{
+    const pt=document.getElementById(`pt-${t}`);
+    const snb=document.getElementById(`snb-${t}`);
+    if(pt)  pt.classList.toggle('active',t===tab);
+    if(snb) snb.classList.toggle('active-slide',t===tab);
+  });
+  updatePreview();
+}
+function switchSbTab(name,btn){
+  document.querySelectorAll('.sb-section').forEach(s=>s.style.display='none');
+  const sec=document.getElementById(`sb-${name}`);
+  if(sec) sec.style.display='block';
+  document.querySelectorAll('.sb-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('form-scroll').scrollTop=0;
+}
+
+/* ══════════════════════════════════════════════════════
+   THEME TOGGLE
+   ══════════════════════════════════════════════════════ */
+function setTheme(th){
+  currentTheme=th;
+  document.getElementById('btn-light').classList.toggle('active',th==='light');
+  document.getElementById('btn-dark').classList.toggle('active', th==='dark');
+  updatePreview();
+}
+
+/* ══════════════════════════════════════════════════════
+   EXPORT (html2canvas → PNG download)
+   ══════════════════════════════════════════════════════ */
+function showOverlay(msg){
+  document.getElementById('export-msg').textContent=msg||'Rendering...';
+  document.getElementById('export-overlay').classList.add('show');
+}
+function hideOverlay(){ document.getElementById('export-overlay').classList.remove('show'); }
+
+function getFilename(tab){
+  const d=getData();
+  const date=(d.date||'JC').replace(/\s+/g,'-');
+  const names={cover:'Cover',a0:'Slide1-RTR',a1:'Slide2-HipGroin',a2:'Slide3-ACL',contact:'Contact'};
+  return `AASPT_${date}_${names[tab]||tab}_${currentTheme}.png`;
+}
+
+async function renderToCanvas(tab){
+  const zone=document.getElementById('export-zone');
+  zone.innerHTML=renderSlide(tab,currentTheme);
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  await new Promise(r=>setTimeout(r,600)); // let fonts load
+  const el=zone.firstElementChild;
+  return html2canvas(el,{
+    scale:2,width:1080,height:1350,
+    useCORS:true,allowTaint:true,
+    backgroundColor:T[currentTheme].bg,
+    logging:false,
+  });
+}
+
+function canvasToBlob(canvas){
+  return new Promise(res=>canvas.toBlob(res,'image/png'));
+}
+function downloadBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; document.body.appendChild(a);
+  a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+async function exportCurrent(){
+  if(!window.html2canvas){alert('html2canvas not loaded — check your internet connection.');return;}
+  showOverlay('Rendering slide...');
+  try{
+    const canvas=await renderToCanvas(currentTab);
+    const blob=await canvasToBlob(canvas);
+    downloadBlob(blob,getFilename(currentTab));
+  }catch(e){console.error(e);alert('Export failed. Try opening in Chrome for best results.');}
+  hideOverlay();
+  document.getElementById('export-zone').innerHTML='';
+}
+
+async function exportAll(){
+  if(!window.html2canvas){alert('html2canvas not loaded — check your internet connection.');return;}
+  if(!window.JSZip){alert('JSZip not loaded — check your internet connection.');return;}
+  const zip=new JSZip();
+  for(const tab of TABS){
+    showOverlay(`Rendering ${tab}... (${TABS.indexOf(tab)+1}/5)`);
+    try{
+      const canvas=await renderToCanvas(tab);
+      const blob=await canvasToBlob(canvas);
+      zip.file(getFilename(tab),blob);
+    }catch(e){console.error('Error exporting',tab,e);}
+    document.getElementById('export-zone').innerHTML='';
+  }
+  showOverlay('Creating ZIP...');
+  const d=getData();
+  const zipBlob=await zip.generateAsync({type:'blob'});
+  const date=(d.date||'JC').replace(/\s+/g,'-');
+  downloadBlob(zipBlob,`AASPT_${date}_${currentTheme}_Carousel.zip`);
+  hideOverlay();
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════ */
+function init(){
+  buildArticleForms();
+  populateDefaults();
+  document.getElementById('form-scroll').addEventListener('input',()=>{
+    clearTimeout(window._db);
+    window._db=setTimeout(updatePreview,200);
+  });
+  updatePreview();
+  window.addEventListener('resize',scaleSlide);
+}
+init();
+</script>
+</body>
+</html>
